@@ -1,0 +1,72 @@
+# OS and editor files
+.DS_Store
+._*
+Thumbs.db
+*.swp
+*.swo
+
+# Local credentials and environment values
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+*.pem
+*.key
+*.p12
+*.pfx
+*.p8
+*.jks
+*.keystore
+id_rsa
+id_ed25519
+credentials.json
+service-account*.json
+serviceAccount*.json
+*-firebase-adminsdk-*.json
+.npmrc
+.pypirc
+.netrc
+
+# Dependencies and generated outputs (review after stack is known)
+node_modules/
+.pnpm-store/
+.next/
+.nuxt/
+.output/
+dist/
+build/
+coverage/
+.expo/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+Pods/
+DerivedData/
+.gradle/
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.tsbuildinfo
+
+# Local caches, logs, and database snapshots
+.cache/
+.turbo/
+.wrangler/
+.vercel/
+*.log
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+/backups/
+
+# Incoming archives and local scratch material
+*.zip
+*.tar
+*.tar.gz
+/work/
+/outputs/
+
+# Keep dependency lockfiles, migrations, and safe env examples tracked.
