@@ -14,8 +14,10 @@ from repository_guard import GuardError
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--install', action='store_true', help='Install and start after Git authentication succeeds')
-    parser.add_argument('--stop', action='store_true', help='Pause and unload; leave the installation file for inspection')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--install', action='store_true', help='Install and start after Git authentication succeeds')
+    mode.add_argument('--install-paused', action='store_true', help='Install paused while waiting for Git authentication')
+    mode.add_argument('--stop', action='store_true', help='Pause and unload; leave the installation file for inspection')
     args = parser.parse_args()
     if sys.platform != 'darwin':
         print('The background service installer is for macOS only.')
@@ -42,11 +44,12 @@ def main():
     }
     prepared = app.state_dir / (LABEL + '.plist')
     prepared.write_bytes(plistlib.dumps(content))
-    if not args.install:
+    if not (args.install or args.install_paused):
         print('Prepared launch agent; not installed or running.')
         return 0
     app.validate()
-    app.g('push', '--dry-run', 'origin', 'HEAD:refs/heads/main')
+    if not args.install_paused:
+        app.g('push', '--dry-run', 'origin', 'HEAD:refs/heads/main')
     if target.exists():
         current = plistlib.loads(target.read_bytes())
         if current.get('Label') != LABEL or current.get('ProgramArguments') != content['ProgramArguments']:
@@ -55,11 +58,17 @@ def main():
     target.write_bytes(plistlib.dumps(content))
     target.chmod(0o600)
     subprocess.run(['/bin/launchctl', 'bootout', service], capture_output=True)
-    (app.state_dir / 'paused').unlink(missing_ok=True)
+    if args.install_paused:
+        (app.state_dir / 'paused').touch(mode=0o600)
+    else:
+        (app.state_dir / 'paused').unlink(missing_ok=True)
     result = subprocess.run(['/bin/launchctl', 'bootstrap', 'gui/%d' % os.getuid(), str(target)], capture_output=True)
     if result.returncode:
         raise GuardError('Launch agent prepared, but macOS did not start it.')
-    print('Installed: checks main every 60 seconds while this Mac is awake and you are logged in.')
+    if args.install_paused:
+        print('Installed and paused. Authenticate Git, then run autopush.py --resume.')
+    else:
+        print('Installed: checks main every 60 seconds while this Mac is awake and you are logged in.')
     return 0
 
 

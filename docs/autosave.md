@@ -40,6 +40,7 @@ python3 tools/install_autopush.py --stop
 ```
 
 状態・ログはローカルの `.git/yutolu-autopush/` に保存し、GitHubへは送信しません。
+作業フォルダを移動した場合は、サービスの再設定が必要です。
 
 ## 別のMacへの導入
 
@@ -48,6 +49,8 @@ python3 tools/install_autopush.py --stop
 3. ローカルリポジトリの `user.name` と `user.email` を設定する。
 4. `python3 -m unittest discover -s tests -v` と `python3 tools/repository_guard.py --worktree` を実行する。
 5. `python3 tools/install_autopush.py --install` でインストールする。これにはユーザーのLaunchAgentsフォルダへの書き込みが必要です。
+
+認証前に仕組みだけ用意する場合は `python3 tools/install_autopush.py --install-paused` を使えます。この状態では送信せず、Git認証後に `python3 tools/autopush.py --resume` で有効化します。
 
 ## GitHub Actions
 
